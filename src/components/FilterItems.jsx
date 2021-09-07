@@ -16,7 +16,7 @@ const FilterItems = ({ deleteAllTodo, doFiltration, filters }) => {
   return (
     <div className="filters">
       {filterItems}
-      <Button ClearAll={() => deleteAllTodo()} text="Clear" />
+      <Button clearAll={() => deleteAllTodo()} text="Clear" />
     </div>
   );
 };

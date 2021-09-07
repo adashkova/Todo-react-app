@@ -1,12 +1,12 @@
 import React from 'react';
 import '../styles/button.css';
 
-const Button = ({ text, type, ClearAll, ...rest }) => {
+const Button = ({ text, type, clearAll, ...rest }) => {
   return (
     <button
       className={text === 'Add' ? 'btn_add' : 'btn_clear'}
       type={type}
-      onClick={ClearAll}
+      onClick={clearAll}
       {...rest}
     >
       {text}
