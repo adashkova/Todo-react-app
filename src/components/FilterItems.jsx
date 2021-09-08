@@ -6,7 +6,7 @@ const FilterItems = ({ deleteAllTodo, doFiltration, filters }) => {
   const filterItems = filters.map(item => (
     <p
       onClick={() => doFiltration(item.id)}
-      key={item.text}
+      key={`${item.text}${item._id}`}
       className={item.isActiveClass ? 'active' : ''}
     >
       {item.text}
@@ -16,7 +16,7 @@ const FilterItems = ({ deleteAllTodo, doFiltration, filters }) => {
   return (
     <div className="filters">
       {filterItems}
-      <Button clearAll={() => deleteAllTodo()} text="Clear" />
+      <Button clearAll={() => deleteAllTodo()} text="Clear Done" />
     </div>
   );
 };

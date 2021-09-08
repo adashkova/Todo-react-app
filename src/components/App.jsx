@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Input from './Input';
 import TodoItems from './TodoItems';
 import FilterItems from './FilterItems';
-import '../styles/app.css';
 import Button from './Button';
+
+import '../styles/app.css';
 
 function App() {
   // State
@@ -15,6 +16,38 @@ function App() {
     { id: 2, text: 'Completed', isActiveClass: false },
     { id: 3, text: 'In Progress', isActiveClass: false },
   ]);
+
+  const apiKey = '78e07c67-4c38-4d11-a6de-eb82ac08d688';
+  const baseUrl = 'https://exceed-todo-list.herokuapp.com/api/v1';
+
+  // create todo item
+  const createTodos = async todo => {
+    const headers = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: apiKey,
+      },
+      body: JSON.stringify(todo),
+    };
+    const response = await fetch(`${baseUrl}/todos`, headers);
+
+    const result = await response.json(todo);
+  };
+  // add todo
+
+  const addTodo = () => {
+    if (inputValue) {
+      const newTodo = { title: inputValue };
+      createTodos(newTodo);
+      const newTodos = [...todos, newTodo];
+      setTodos(newTodos);
+      setInputValue('');
+    } else {
+      alert('Please input text');
+    }
+  };
+
   // Filtration
 
   const doFiltration = filterId => {
@@ -35,39 +68,92 @@ function App() {
     setFilters(newFilters);
   };
 
-  // Add Todo
-  const addTodo = () => {
-    if (inputValue) {
-      const newTodos = [...todos, { textTodo: inputValue, isCompleted: false }];
-      setTodos(newTodos);
-      setInputValue('');
+  useCallback(() => {
+    doFiltration();
+  }, []);
+
+  const markTodo = async id => {
+    const headers = {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: apiKey,
+      },
+    };
+    let response = await fetch(`${baseUrl}/todos/${id}/done`, headers);
+    let result = await response.json();
+    console.log(result);
+    getData();
+  };
+
+  // remove todo
+
+  const removeTodo = async id => {
+    const confirm = window.confirm('Delete this todo?');
+    if (confirm) {
+      const headers = {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: apiKey,
+        },
+      };
+      let response = await fetch(`${baseUrl}/todos/${id}`, headers);
+      let result = await response.json();
+      console.log(result);
+      getData();
     } else {
-      alert('Please input text');
+      return;
     }
   };
-  // Mark Todo
-  const markTodo = text => {
-    const newTodos = [...todos].map(todo => {
-      if (todo.textTodo === text) {
-        return { ...todo, isCompleted: !todo.isCompleted };
-      }
-      return todo;
-    });
 
-    setTodos(newTodos);
-  };
-  // Remove Todo
-  const removeTodo = text => {
-    const newTodos = [...todos].filter(todo => todo.textTodo !== text);
-    setTodos(newTodos);
-  };
-  // Clear All
+  // Clear All Done
+  const deleteAllTodo = async () => {
+    const confirm = window.confirm('Delete All Done todo?');
+    if (confirm) {
+      const headers = {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: apiKey,
+        },
+      };
+      let response = await fetch(`${baseUrl}/todos/clear-done`, headers);
+      let result = await response.json();
 
-  const deleteAllTodo = () => {
-    setTodos([]);
-    console.log('clear', todos);
+      getData();
+    } else {
+      return;
+    }
   };
 
+  // Get data
+
+  const getData = async () => {
+    const headers = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: apiKey,
+      },
+    };
+    await fetch(`${baseUrl}/todos`, headers)
+      .then(res => res.json())
+      .then(
+        result => {
+          setTodos(result);
+        },
+        error => {
+          alert('error', error);
+        }
+      );
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  //// render
   return (
     <div className="App">
       <div className="container">
